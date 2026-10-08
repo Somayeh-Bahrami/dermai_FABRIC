@@ -10,6 +10,7 @@ weight_decay: 0.01
 warmup_ratio: 0.1
 class_weighted_loss: True
 seed: 42
+split_seed: 42  # fixed test set; never change with the training seed
 device: auto
 
 experiment_tag: EN_strategy1_unfreeze4

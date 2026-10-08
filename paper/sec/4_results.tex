@@ -1,0 +1,61 @@
+\section{Results}
+\label{sec:results}
+% Every number below must come from results/final/tables/*.tex or aggregate.json (see results/PROVENANCE.md).
+
+\subsection{Classification}
+\gentable{classification}{%
+\begin{table}[t]\centering\small
+\caption{Classification (placeholder until scripts/aggregate.py runs).}\label{tab:classification}
+\begin{tabular}{lcccc}\toprule
+Model & Seeds & Val macro-F1 & Test macro-F1 & Test bal.\ acc.\\\midrule
+EfficientNet-B0 & 3 & \todo{X $\pm$ X} & \todo{X $\pm$ X} & \todo{X $\pm$ X}\\
+ViT-B/16 & 3 & \todo{X $\pm$ X} & \todo{X $\pm$ X} & \todo{X $\pm$ X}\\\bottomrule
+\end{tabular}
+
+\end{table}}
+\TODO{Two sentences: test macro-F1 per model, mean $\pm$ SD; whether the gap exceeds seed variation. No
+causal attribution to architecture (capacity and pretraining differ, Table~\ref{tab:models}).}
+
+\subsection{Localization relative to a center prior}
+\gentable{localization}{%
+\begin{table}[t]\centering\small
+\caption{Localization (placeholder until scripts/aggregate.py runs).}\label{tab:localization}
+\begin{tabular}{llccc}\toprule
+Model & Heatmap & IoU & PG exact & PG 15 px\\\midrule
+EfficientNet-B0 & Grad-CAM & \todo{X} & \todo{X} & \todo{X}\\
+EfficientNet-B0 & Integrated Gradients & \todo{X} & \todo{X} & \todo{X}\\
+ViT-B/16 & Attention rollout & \todo{X} & \todo{X} & \todo{X}\\
+ViT-B/16 & Integrated Gradients & \todo{X} & \todo{X} & \todo{X}\\
+-- & Center prior (no model) & \todo{X} & \todo{X} & \todo{X}\\\bottomrule
+\end{tabular}
+
+\end{table}}
+\TODO{Main finding paragraph. State the center-prior IoU and pointing game next to Grad-CAM and rollout,
+and the paired CI of each difference (tables/contrasts.tex). Mean lesion area (from lesion\_area\_fraction
+in localization\_center.csv). Interpretation limited to: on this dataset these localization scores do not
+separate model evidence from the photographic center bias.}
+
+\subsection{Faithfulness with model-free orderings}
+\gentable{faithfulness}{%
+\begin{table}[t]\centering\small
+\caption{Faithfulness (placeholder until scripts/aggregate.py runs).}\label{tab:faithfulness}
+\begin{tabular}{llcc}\toprule
+Model & Ordering & Deletion $\downarrow$ & Insertion $\uparrow$\\\midrule
+EfficientNet-B0 & Grad-CAM / IG / random / center & \todo{X} & \todo{X}\\
+ViT-B/16 & rollout / IG / random / center & \todo{X} & \todo{X}\\\bottomrule
+\end{tabular}
+
+\end{table}}
+\TODO{Report each explainer against both controls with paired CIs. Note that the controls are scored with
+the same target class and images. Do not claim one architecture is ``more faithful''; claims are about
+model-explainer systems.}
+
+\subsection{Shared explainer}
+\TODO{With Integrated Gradients on both models, does the EfficientNet vs.\ ViT ordering on faithfulness and
+localization match the ordering obtained with Grad-CAM vs.\ rollout? Cite the ``IG EfficientNet - IG ViT''
+rows of tables/contrasts.tex. If the ordering changes, say the original comparison was driven by the
+explainer pairing (rollout is class-agnostic, Sec.~\ref{sec:related}).}
+
+\subsection{Seed variation}
+\TODO{One paragraph: SD across the three seeds for each axis; which differences are larger than seed
+variation.}

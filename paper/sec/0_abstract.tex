@@ -1,0 +1,16 @@
+\begin{abstract}
+Explanation heatmaps are often offered as evidence that a skin-lesion classifier attends to the lesion.
+We ask whether two standard benchmarks for such heatmaps, deletion/insertion faithfulness and
+localization against expert lesion masks, measure the model at all. On HAM10000 we fine-tune a CNN
+(EfficientNet-B0) and a Vision Transformer (ViT-B/16) under one protocol with three training seeds and a
+fixed lesion-grouped split, and score every model-explainer system on the same \todo{1,002} test images
+and the same checkpoints. We pair each architecture's customary explainer (Grad-CAM, attention rollout)
+with one shared, class-specific explainer (Integrated Gradients) and add two model-free controls: a
+random pixel order and a fixed centered heatmap. The centered heatmap, which never looks at the image,
+reaches an IoU of \todo{X} and an exact pointing-game rate of \todo{X}, \todo{[above/below]} Grad-CAM
+(\todo{X}, \todo{X}) and attention rollout (\todo{X}, \todo{X}). \todo{One sentence on faithfulness vs.\
+random and center-prior orderings.} \todo{One sentence on whether the CNN/ViT gap persists with the shared
+explainer.} Because HAM10000 lesions are typically centered and cover about \todo{X}\% of the image,
+localization scores on this dataset should be reported relative to a center prior, and comparisons
+across architectures should hold the explainer fixed. Code will be made publicly available.
+\end{abstract}

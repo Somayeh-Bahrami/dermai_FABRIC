@@ -1,0 +1,23 @@
+\section{Related work}
+\label{sec:related}
+
+\textbf{Explaining CNNs and Transformers.} Grad-CAM~\cite{selvaraju2017gradcam} weights the last
+convolutional feature maps by class-specific gradients. Attention rollout~\cite{abnar2020attention}
+multiplies residual-augmented attention matrices across layers; Chefer et al.~\cite{chefer2021transformer}
+note that its output is fixed for a given input regardless of the target class and propose a
+class-specific relevance propagation for Transformers. Integrated Gradients~\cite{sundararajan2017axiomatic}
+is model-agnostic and class-specific, which makes it a natural shared explainer across architectures.
+
+\textbf{Evaluating explanations.} RISE~\cite{petsiuk2018rise} introduced deletion and insertion curves;
+Samek et al.~\cite{samek2017evaluating} proposed region perturbation curves. The pointing
+game~\cite{zhang2016topdown} checks whether a heatmap's maximum falls on the annotated object. For medical
+imaging, Komorowski et al.~\cite{komorowski2023towards} evaluate Vision Transformer explanations on chest
+X-rays by faithfulness, sensitivity and complexity, and show that the choice of criteria changes the
+ranking of methods. On HAM10000, Saarela and Geogieva~\cite{saarela2022robustness} compare the fidelity,
+stability and robustness of Integrated Gradients and LIME for a skin-lesion classifier.
+Kozachok and Seregin~\cite{kozachok2026melanoscope} report IoU between rollout or Grad-CAM maps and expert
+annotations for several architectures in a dermoscopy decision-support system.
+\TODO{P8: the Sep 21 draft cited Kuntal and Bhat 2025 (ISCON) for a CNN vs.\ ViT accuracy comparison on
+HAM10000; no record found. Ask the team for a DOI or drop it.}
+\textbf{Our difference.} We do not propose a new explainer; we add model-free controls and a shared
+explainer to the standard benchmarks and report all axes on the same checkpoints and seeds.

@@ -40,7 +40,7 @@ def main() -> None:
     processor = ModelFactory.processor(args.checkpoint)
     model = ModelFactory.load(args.checkpoint).to(device)
 
-    data = DataModule(config.data_dir, processor, config.batch_size, config.num_workers, config.seed)
+    data = DataModule(config.data_dir, processor, config.batch_size, config.num_workers, config.split_seed)
     data.setup()
     loader = data.loader(args.split)
 

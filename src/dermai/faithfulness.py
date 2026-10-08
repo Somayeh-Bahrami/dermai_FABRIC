@@ -14,6 +14,7 @@ and plotting scripts.
 from __future__ import annotations
 
 import csv
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,6 +22,7 @@ import numpy as np
 import torch
 from torchvision.transforms.functional import gaussian_blur
 
+from .baselines import center_prior_heatmap
 from .data import CLASSES, LABEL_TO_INDEX
 
 
@@ -128,6 +130,68 @@ class DeletionInsertion:
     @staticmethod
     def _auc(curve: np.ndarray) -> float:
         return float((curve.sum() - curve[0] / 2 - curve[-1] / 2) / (len(curve) - 1))
+
+
+# ----------------------------------------------------------------------
+# Evaluation loop shared by run_faithfulness_eval.py and scripts/run_seed.py.
+# An ordering maps image_id -> saliency heatmap; controls ignore the model.
+# ----------------------------------------------------------------------
+Ordering = Callable[[str], np.ndarray]
+
+
+def random_ordering(size: int = 224) -> Ordering:
+    """Random pixel ordering seeded by the image id, so every model and training
+    seed sees the identical random control for a given image (paired comparisons)."""
+    def ordering(image_id: str) -> np.ndarray:
+        seed = int("".join(ch for ch in image_id if ch.isdigit()) or 0)
+        return np.random.default_rng(seed).random((size, size)).astype(np.float32)
+    return ordering
+
+
+def center_ordering(size: int = 224) -> Ordering:
+    """Fixed center-out ordering (model-free center prior), identical for every image."""
+    heatmap = center_prior_heatmap(size, tie_break=True)
+    return lambda image_id: heatmap
+
+
+def heatmap_dir_ordering(id_to_path: dict[str, Path]) -> Ordering:
+    return lambda image_id: np.load(id_to_path[image_id])
+
+
+def evaluate_orderings(evaluator: DeletionInsertion, loader, orderings: dict[str, Ordering],
+                       target_for: Callable[[str], int], image_ids: set[str],
+                       limit: int | None = None, log_every: int = 50, logger=None) -> dict[str, list[FaithfulnessResult]]:
+    """Scores every ordering on the same images and the same target class per image."""
+    results: dict[str, list[FaithfulnessResult]] = {name: [] for name in orderings}
+    done = 0
+    for batch in loader:
+        for i, image_id in enumerate(batch["image_id"]):
+            if image_id not in image_ids:
+                continue
+            target = target_for(image_id)
+            pixel_values = batch["pixel_values"][i]
+            for name, ordering in orderings.items():
+                results[name].append(evaluator.run_single(pixel_values, ordering(image_id), image_id, target))
+            done += 1
+            if logger is not None and done % log_every == 0:
+                logger.info("  faithfulness %d images", done)
+            if limit is not None and done >= limit:
+                return results
+    return results
+
+
+def write_results(output: Path, results: list[FaithfulnessResult], fractions: np.ndarray) -> None:
+    """Per-image CSV plus a same-named .npz with the step fractions and both curve stacks."""
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with open(output, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["image_id", "target_class", "deletion_auc", "insertion_auc"])
+        for r in results:
+            writer.writerow([r.image_id, r.target_class, r.deletion_auc, r.insertion_auc])
+    np.savez(output.with_suffix(".npz"), fractions=fractions,
+             deletion=np.stack([r.deletion_curve for r in results]),
+             insertion=np.stack([r.insertion_curve for r in results]))
 
 
 def endpoints(curve: np.ndarray, mode: str) -> tuple[float, float]:

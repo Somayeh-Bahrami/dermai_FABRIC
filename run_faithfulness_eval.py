@@ -13,6 +13,10 @@ from dermai.faithfulness import (
     DeletionInsertion,
     GaussianBlurSubstrate,
     MeanFillSubstrate,
+    center_ordering,
+    evaluate_orderings,
+    heatmap_dir_ordering,
+    random_ordering,
     target_class_from_filename,
 )
 from dermai.models import ModelFactory
@@ -36,6 +40,8 @@ def main() -> None:
                         help="starting canvas for insertion: mean (default) or blur")
     parser.add_argument("--step-pixels", type=int, default=512)
     parser.add_argument("--random-control", action="store_true", help="also score a random saliency ordering")
+    parser.add_argument("--center-control", action="store_true",
+                        help="also score the model-free center-prior ordering (center pixels first)")
     parser.add_argument("--limit", type=int, default=None, help="evaluate at most this many images")
     parser.add_argument("--device", default=None)
     args = parser.parse_args()
@@ -45,7 +51,7 @@ def main() -> None:
 
     processor = ModelFactory.processor(args.checkpoint)
     model = ModelFactory.load(args.checkpoint)
-    data = DataModule(config.data_dir, processor, config.batch_size, config.num_workers, config.seed)
+    data = DataModule(config.data_dir, processor, config.batch_size, config.num_workers, config.split_seed)
     data.setup()
 
     id_to_heatmap = build_image_id_to_path(args.heatmap_dir)
@@ -55,55 +61,43 @@ def main() -> None:
         insertion_substrate=SUBSTRATES[args.insertion_substrate](),
         step_pixels=args.step_pixels,
     )
-    rng = np.random.default_rng(config.seed)
+    orderings = {"heatmap": heatmap_dir_ordering(id_to_heatmap)}
+    if args.random_control:
+        orderings["random"] = random_ordering()
+    if args.center_control:
+        orderings["center"] = center_ordering()
 
     total = min(len(id_to_heatmap), args.limit or len(id_to_heatmap))
-    logger.info("%s  device %s  %d images  del %s  ins %s  step %d",
-                config.run_name, device, total, args.deletion_substrate, args.insertion_substrate, args.step_pixels)
+    logger.info("%s  device %s  %d images  del %s  ins %s  step %d  orderings %s",
+                config.run_name, device, total, args.deletion_substrate, args.insertion_substrate,
+                args.step_pixels, list(orderings))
 
-    results, random_results = [], []
-    num_pixels = None
     timer = Timer()
-    for batch in data.loader(args.split):
-        for i, image_id in enumerate(batch["image_id"]):
-            if image_id not in id_to_heatmap:
-                continue
-            heatmap = np.load(id_to_heatmap[image_id])
-            num_pixels = heatmap.size
-            target = target_class_from_filename(id_to_heatmap[image_id].stem)
-            pixel_values = batch["pixel_values"][i]
-            results.append(evaluator.run_single(pixel_values, heatmap, image_id, target))
-            if args.random_control:
-                noise = rng.random(heatmap.shape).astype(np.float32)
-                random_results.append(evaluator.run_single(pixel_values, noise, image_id, target))
-            if len(results) % 50 == 0:
-                logger.info("  %d/%d images  %s", len(results), total, Timer.format(timer.elapsed()))
-            if args.limit and len(results) >= args.limit:
-                break
-        if args.limit and len(results) >= args.limit:
-            break
-
-    _write(args.output, results, random_results if args.random_control else None,
-           evaluator.step_fractions(num_pixels))
-    logger.info("wrote %d results to %s in %s", len(results), args.output, Timer.format(timer.elapsed()))
+    results = evaluate_orderings(
+        evaluator, data.loader(args.split), orderings,
+        target_for=lambda image_id: target_class_from_filename(id_to_heatmap[image_id].stem),
+        image_ids=set(id_to_heatmap), limit=args.limit, logger=logger,
+    )
+    num_pixels = int(np.prod(np.load(next(iter(id_to_heatmap.values()))).shape))
+    _write(args.output, results, evaluator.step_fractions(num_pixels))
+    logger.info("wrote %d results to %s in %s", len(results["heatmap"]), args.output, Timer.format(timer.elapsed()))
 
 
-def _write(output: Path, results, random_results, fractions: np.ndarray) -> None:
+def _write(output: Path, results: dict, fractions: np.ndarray) -> None:
+    """CSV for the explainer ordering; one .npz holding every ordering's curves
+    (keys deletion, insertion, deletion_random, insertion_center, ...)."""
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["image_id", "target_class", "deletion_auc", "insertion_auc"])
-        for r in results:
+        for r in results["heatmap"]:
             writer.writerow([r.image_id, r.target_class, r.deletion_auc, r.insertion_auc])
 
-    curves = {
-        "fractions": fractions,
-        "deletion": np.stack([r.deletion_curve for r in results]),
-        "insertion": np.stack([r.insertion_curve for r in results]),
-    }
-    if random_results:
-        curves["deletion_random"] = np.stack([r.deletion_curve for r in random_results])
-        curves["insertion_random"] = np.stack([r.insertion_curve for r in random_results])
+    curves = {"fractions": fractions}
+    for name, rows in results.items():
+        suffix = "" if name == "heatmap" else f"_{name}"
+        curves[f"deletion{suffix}"] = np.stack([r.deletion_curve for r in rows])
+        curves[f"insertion{suffix}"] = np.stack([r.insertion_curve for r in rows])
     np.savez(output.with_suffix(".npz"), **curves)
 
 

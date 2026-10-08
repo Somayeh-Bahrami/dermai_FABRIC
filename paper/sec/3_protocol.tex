@@ -1,0 +1,63 @@
+\section{Protocol}
+\label{sec:protocol}
+
+\textbf{Data and split.} HAM10000~\cite{tschandl2018ham10000} contains 10,015 dermoscopic images of 7,470
+lesions in seven diagnostic classes, each with a binary lesion mask. We use a lesion-grouped, stratified
+80/10/10 split with a fixed split seed, so that every training seed is evaluated on the identical
+\todo{1,002}-image test set (image ids checked identical across runs). Images are resized to
+$224\times224$ and normalized with each backbone's ImageNet statistics.
+
+\textbf{Models and training.} Table~\ref{tab:models} lists the two backbones. They differ in capacity and
+pretraining data, so we treat architecture differences as differences between these specific pretrained
+models, not as effects of inductive bias. Each model is fine-tuned in two phases, head only and then the
+full network~\cite{kumar2022finetuning}, with AdamW~\cite{loshchilov2019adamw} and class-weighted cross
+entropy. Hyperparameters were chosen on validation macro-F1 (search grid in Appendix \TODO{A, if it fits the 9-page limit}, otherwise in the code release); the checkpoint
+of each run is the epoch with the best validation macro-F1, and the test split is evaluated once per
+selected checkpoint. We train three seeds (42, 43, 44) per model.
+\TODO{T2: state ViT phase-1 lr 5e-2 and extend the grid description once the seed-42 reproduction check passes.}
+
+\begin{table}[t]
+\centering\small
+\caption{Backbones and selected configurations (from configs/*.yaml). \TODO{verify parameter counts and
+pretraining data from the model cards and log them in PROVENANCE.md.}}
+\label{tab:models}
+\begin{tabular}{lcc}
+\toprule
+ & EfficientNet-B0 & ViT-B/16 \\
+\midrule
+Parameters & \todo{5.3M} & \todo{86M} \\
+Pretraining data & \todo{ImageNet-1k} & \todo{ImageNet-21k, fine-tuned 1k} \\
+Phase 1 / 2 lr & $10^{-3}$ / $8\times10^{-4}$ & \todo{$5\times10^{-2}$} / $4\times10^{-5}$ \\
+Batch, weight decay & 16, 0.01 & 8, 0.1 \\
+Dropout, augmentation & 0.2 (+ drop-connect 0.4), yes & 0.2, no \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\textbf{Explainers.} Grad-CAM~\cite{selvaraju2017gradcam} on the last activation of EfficientNet-B0 and
+attention rollout~\cite{abnar2020attention} (mean head fusion, residual weight 0.5, no discarding) on
+ViT-B/16 are the customary explainers. Rollout is class-agnostic. As a shared, class-specific explainer we
+use Integrated Gradients~\cite{sundararajan2017axiomatic} on both models: 32 steps, an all-zero baseline in
+normalized input space (the per-channel mean color), the predicted class as target, and the absolute
+attribution summed over color channels. All heatmaps are $224\times224$ and min-max normalized per image.
+
+\textbf{Controls.} \emph{Random}: an i.i.d.\ uniform heatmap seeded by the image id, identical across models
+and seeds. \emph{Center prior}: a fixed heatmap that decreases with squared distance from the image center
+and is identical for every image; it uses no model and no image content.
+
+\textbf{Faithfulness.} Following RISE~\cite{petsiuk2018rise}, deletion replaces pixels, in heatmap order
+and 512 pixels per step, with a Gaussian-blurred copy (kernel 11, $\sigma=5$), and insertion starts from a
+mean-color canvas and restores the original pixels. We record the probability of the class predicted on
+the clean image and report the area under each curve, macro-averaged over the seven predicted classes.
+Lower deletion and higher insertion area indicate a more faithful ordering. The same target class and
+images are used for every ordering.
+
+\textbf{Localization.} Masks are resized to $224\times224$ with nearest-neighbor interpolation. IoU uses the
+top 20\% of heatmap pixels. The pointing game counts a hit when the heatmap maximum lies inside the mask;
+we report the exact-pixel version as primary and a 15-pixel tolerance~\cite{zhang2016topdown} as
+secondary.
+
+\textbf{Statistics.} For each run-level metric we report the mean $\pm$ SD over the three seeds. For
+differences between two conditions we average each image's value over seeds and compute a paired
+bootstrap 95\% confidence interval over images (10,000 resamples).

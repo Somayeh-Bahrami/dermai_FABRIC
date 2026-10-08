@@ -38,7 +38,7 @@ class Trainer:
         self.train_loader = data.loader("train")
         self.val_loader = data.loader("val")
         self.test_loader = data.loader("test")
-        self.best_metric = 0.0
+        self.best_metric = float("-inf")  # first epoch always checkpoints, so test() has a model to load
         self.checkpoint_dir = config.output_dir / config.run_name
         self._current_depth: int | str = 0
         self._current_param_counts: tuple[int, int] = (0, 0)
