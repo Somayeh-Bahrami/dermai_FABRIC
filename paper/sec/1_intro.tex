@@ -19,6 +19,12 @@ whereas deletion/insertion are computed on the predicted-class probability, whic
 class-specific explainer such as Grad-CAM. A comparison of ``CNN with Grad-CAM'' against ``ViT with
 rollout'' therefore compares two model-explainer systems, not two architectures.
 
+Explanations are often proposed as a safeguard for responsible clinical AI: they are meant to let a clinician
+check that a prediction rests on the lesion. That safeguard is only as good as the evaluation behind it. If
+an explanation benchmark rewards a heatmap that ignores the image, or structurally favors one kind of
+explainer, then a model-explainer system can look trustworthy for reasons unrelated to the model. We scope
+this work as an evaluation study of conventional ImageNet-pretrained models on one public dataset.
+
 \textbf{Contributions.} (1) A single protocol that scores classification, faithfulness and localization
 on the same checkpoints and the same \todo{1,002} test images of a fixed lesion-grouped split, with three
 training seeds per model and paired image-level confidence intervals. (2) Two model-free controls, a
@@ -27,5 +33,5 @@ the center prior [matches/exceeds] Grad-CAM on IoU and pointing game; numbers fr
 results/final/tables/localization.tex.} (4) One shared, class-specific explainer, Integrated
 Gradients~\cite{sundararajan2017axiomatic}, applied to both architectures, which \todo{[does/does not]}
 preserve the architecture ranking obtained with the customary explainers.
-\TODO{Two sentences on FABRIC fit: trustworthy evaluation of biomedical imaging models; why evaluation
-artifacts matter before clinical studies. Keep claims at research level, no clinical-readiness claims.}
+(5) Reporting recommendations for explanation benchmarks in clinical imaging
+(Sec.~\ref{sec:recommendations}).

@@ -82,10 +82,11 @@ def fmt(mean: float, sd: float, digits: int = 3) -> str:
 # ----------------------------------------------------------------------
 def latex_table(header: list[str], rows: list[list[str]], caption: str, label: str) -> str:
     cols = "l" * 2 + "c" * (len(header) - 2)
-    lines = ["\\begin{table}[t]", "\\centering", "\\small", f"\\begin{{tabular}}{{{cols}}}", "\\toprule",
+    lines = ["\\begin{table}[t]", "\\centering", "\\small", f"\\caption{{{caption}}}", f"\\label{{{label}}}",
+             f"\\begin{{tabular}}{{{cols}}}", "\\toprule",
              " & ".join(header) + " \\\\", "\\midrule"]
     lines += [" & ".join(row) + " \\\\" for row in rows]
-    lines += ["\\bottomrule", "\\end{tabular}", f"\\caption{{{caption}}}", f"\\label{{{label}}}", "\\end{table}", ""]
+    lines += ["\\bottomrule", "\\end{tabular}", "\\end{table}", ""]  # ACM: caption above the table
     return "\n".join(lines)
 
 

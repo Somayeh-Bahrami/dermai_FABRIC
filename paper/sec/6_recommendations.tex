@@ -1,0 +1,15 @@
+\section{Recommendations for reporting}
+\label{sec:recommendations}
+The protocol above suggests a short checklist for anyone using explanation benchmarks to argue that a
+clinical imaging model is trustworthy. Each item is something we did, not a new result.
+\begin{itemize}
+\item \textbf{Report model-free controls in the main table.} A random ordering for faithfulness and a
+  dataset-appropriate spatial prior (here, a centered heatmap) for localization, scored with the same
+  evaluator, images and target class.
+\item \textbf{Hold the explainer fixed when comparing models.} Pair architecture-specific explainers with at
+  least one shared, class-specific explainer, and describe results as properties of model-explainer systems.
+\item \textbf{State metric definitions that change the numbers.} Pointing-game tolerance, IoU threshold,
+  perturbation substrate and step size, and the target class used for faithfulness.
+\item \textbf{Use one set of checkpoints and images for every axis.} Select checkpoints on validation data
+  only, fix the test split across training seeds, and report seed variation and paired confidence intervals.
+\end{itemize}

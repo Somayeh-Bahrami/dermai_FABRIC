@@ -11,13 +11,16 @@ $224\times224$ and normalized with each backbone's ImageNet statistics.
 pretraining data, so we treat architecture differences as differences between these specific pretrained
 models, not as effects of inductive bias. Each model is fine-tuned in two phases, head only and then the
 full network~\cite{kumar2022finetuning}, with AdamW~\cite{loshchilov2019adamw} and class-weighted cross
-entropy. Hyperparameters were chosen on validation macro-F1 (search grid in the supplement); the checkpoint
+entropy. Hyperparameters were chosen on validation macro-F1 (search grid in Appendix \TODO{A, if it fits the 9-page limit}, otherwise in the code release); the checkpoint
 of each run is the epoch with the best validation macro-F1, and the test split is evaluated once per
 selected checkpoint. We train three seeds (42, 43, 44) per model.
 \TODO{T2: state ViT phase-1 lr 5e-2 and extend the grid description once the seed-42 reproduction check passes.}
 
 \begin{table}[t]
 \centering\small
+\caption{Backbones and selected configurations (from configs/*.yaml). \TODO{verify parameter counts and
+pretraining data from the model cards and log them in PROVENANCE.md.}}
+\label{tab:models}
 \begin{tabular}{lcc}
 \toprule
  & EfficientNet-B0 & ViT-B/16 \\
@@ -29,9 +32,7 @@ Batch, weight decay & 16, 0.01 & 8, 0.1 \\
 Dropout, augmentation & 0.2 (+ drop-connect 0.4), yes & 0.2, no \\
 \bottomrule
 \end{tabular}
-\caption{Backbones and selected configurations (from configs/*.yaml). \TODO{verify parameter counts and
-pretraining data from the model cards and log them in PROVENANCE.md.}}
-\label{tab:models}
+
 \end{table}
 
 \textbf{Explainers.} Grad-CAM~\cite{selvaraju2017gradcam} on the last activation of EfficientNet-B0 and

@@ -1,4 +1,4 @@
-# CLAUDE.md: FABRIC @ WACV 2027 revision of the DermAI explainability paper
+# CLAUDE.md: REED-AI @ ACM TRUST 2027 revision of the DermAI explainability paper
 
 Working repo: the user's own private copy (code copied from the team repo without git history; the team
 repo is never modified). Original course CLAUDE.md is kept at `docs/course_CLAUDE_original.md`.
@@ -6,11 +6,15 @@ Paper inputs live in `paper_inputs/` (Sep 21 PDF = content reference; `old_latex
 
 ## Goal
 Turn the CS 7643 report "Quantifying Explanation Faithfulness and Localization in CNNs vs Vision
-Transformers for Skin Lesion Classification" into an anonymous, honest, 8-page FABRIC submission.
-Venue: FABRIC 2027 @ WACV 2027 (https://sites.google.com/view/fabric-wacv/call-for-papers).
-Deadline: Oct 12, 2026 (verify the exact time zone on OpenReview before planning the last day).
-Notification Oct 30, 2026. Double-blind. WACV 2027 author kit. Max 8 pages incl. figures and tables; references extra.
-Fallback: if the gates below cannot all be met by Oct 10 evening, stop and recommend a later venue.
+Transformers for Skin Lesion Classification" into an anonymous, honest submission to the REED-AI track.
+Venue (changed Oct 8 from FABRIC @ WACV 2027): REED-AI, "Responsible, Explainable, and Ethical-by-Design AI
+in Clinical Applications", Emerging Area track of ACM TRUST 2027 (https://pitthexai.github.io/REED-AI/).
+Abstract registration Oct 24, 2026; paper deadline Oct 31, 2026 (verify the time zone in CMT).
+Notification Dec 31, 2026. Double-blind, Microsoft CMT. ACM sigconf two-column (acmart, review+anonymous).
+Max 9 pages INCLUDING appendices; references and the required GenAI Usage Disclosure section do not count.
+Scope: core study only (2 models x 3 seeds); no DINOv2. Say it is an evaluation study of conventional
+pretrained models.
+Fallback: if the gates below cannot all be met by Oct 29 evening, stop and recommend a later venue.
 
 ## Who is who
 - Authors (all must approve submission, author list, order, and final PDF in writing BEFORE submission):
@@ -86,25 +90,27 @@ Days 2 to 3 (molab GPU, see MOLAB_GUIDE.md)
 - [ ] `scripts/aggregate.py`: mean +/- SD over seeds, paired bootstrap CIs over images (10,000 draws),
       writes LaTeX tables + `results/PROVENANCE.md`.
 Days 3 to 5 (writing)
-- [ ] WACV 2027 author kit (user uploads the kit ZIP); anonymous review mode.
+- [x] ACM sigconf template in `paper/` (review, anonymous); compile on Overleaf.
 - [ ] New title suggestion: "Do Explanation Benchmarks Measure the Model? Center Bias and Class-Agnostic
       Attribution in Dermoscopy Explainability" (or the more conservative "Faithfulness and Lesion
       Localization of Explanations for Pretrained Vision Models in Dermoscopy"). Pick with the team.
-- [ ] Structure: Intro (trustworthy evaluation for clinical AI, FABRIC fit) / Related work / Protocol /
+- [ ] Structure: Intro (validity of explanation evaluation for responsible clinical AI) / Related work / Protocol /
       Results (classification, faithfulness, localization with center prior, shared explainer, seeds) /
       Qualitative failure cases (image, mask, Grad-CAM, rollout, IG, center prior) / Limitations & ethics
       (HAM10000 de-identified public data from Austria and Australia; no skin-type labels; research only) /
-      Conclusion.
+      Recommendations for reporting / Conclusion / GenAI Usage Disclosure.
 - [ ] Anonymized supplement ZIP (code + instructions, no names in LICENSE/headers/git metadata).
 - [ ] Final gates below.
 
-Optional only if everything above is done: a self-supervised foundation backbone (e.g. DINOv2 ViT-B/14 linear
-probe + fine-tune) under the identical protocol. Otherwise scope the paper as an evaluation study of
-conventional pretrained models and say so.
+Decided Oct 8: no extra backbone (DINOv2 dropped); the paper is an evaluation study of conventional
+pretrained models.
 
 ## Final gates (all must be true to submit)
 - [ ] All four authors approved in writing (ADMIN.md).
-- [ ] Anonymous; <= 8 pages excluding references; WACV 2027 template; PDF metadata clean.
+- [ ] Anonymous; <= 9 pages including appendices (references and GenAI disclosure excluded); ACM sigconf;
+      PDF metadata clean.
+- [ ] GenAI Usage Disclosure present, wording checked against the CMT/ACM instructions, approved by all authors.
+- [ ] Abstract registered in CMT by Oct 24; REED-AI track selected.
 - [ ] No test result used for selection; split ids verified identical across seeds.
 - [ ] Every number traced in results/PROVENANCE.md; same checkpoints across all axes.
 - [ ] 3 seeds, mean +/- SD and paired CIs; no claim the uncertainty does not support.

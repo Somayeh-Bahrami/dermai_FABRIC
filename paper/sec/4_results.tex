@@ -5,12 +5,13 @@
 \subsection{Classification}
 \gentable{classification}{%
 \begin{table}[t]\centering\small
+\caption{Classification (placeholder until scripts/aggregate.py runs).}\label{tab:classification}
 \begin{tabular}{lcccc}\toprule
 Model & Seeds & Val macro-F1 & Test macro-F1 & Test bal.\ acc.\\\midrule
 EfficientNet-B0 & 3 & \todo{X $\pm$ X} & \todo{X $\pm$ X} & \todo{X $\pm$ X}\\
 ViT-B/16 & 3 & \todo{X $\pm$ X} & \todo{X $\pm$ X} & \todo{X $\pm$ X}\\\bottomrule
 \end{tabular}
-\caption{Classification (placeholder until scripts/aggregate.py runs).}\label{tab:classification}
+
 \end{table}}
 \TODO{Two sentences: test macro-F1 per model, mean $\pm$ SD; whether the gap exceeds seed variation. No
 causal attribution to architecture (capacity and pretraining differ, Table~\ref{tab:models}).}
@@ -18,6 +19,7 @@ causal attribution to architecture (capacity and pretraining differ, Table~\ref{
 \subsection{Localization relative to a center prior}
 \gentable{localization}{%
 \begin{table}[t]\centering\small
+\caption{Localization (placeholder until scripts/aggregate.py runs).}\label{tab:localization}
 \begin{tabular}{llccc}\toprule
 Model & Heatmap & IoU & PG exact & PG 15 px\\\midrule
 EfficientNet-B0 & Grad-CAM & \todo{X} & \todo{X} & \todo{X}\\
@@ -26,7 +28,7 @@ ViT-B/16 & Attention rollout & \todo{X} & \todo{X} & \todo{X}\\
 ViT-B/16 & Integrated Gradients & \todo{X} & \todo{X} & \todo{X}\\
 -- & Center prior (no model) & \todo{X} & \todo{X} & \todo{X}\\\bottomrule
 \end{tabular}
-\caption{Localization (placeholder until scripts/aggregate.py runs).}\label{tab:localization}
+
 \end{table}}
 \TODO{Main finding paragraph. State the center-prior IoU and pointing game next to Grad-CAM and rollout,
 and the paired CI of each difference (tables/contrasts.tex). Mean lesion area (from lesion\_area\_fraction
@@ -36,12 +38,13 @@ separate model evidence from the photographic center bias.}
 \subsection{Faithfulness with model-free orderings}
 \gentable{faithfulness}{%
 \begin{table}[t]\centering\small
+\caption{Faithfulness (placeholder until scripts/aggregate.py runs).}\label{tab:faithfulness}
 \begin{tabular}{llcc}\toprule
 Model & Ordering & Deletion $\downarrow$ & Insertion $\uparrow$\\\midrule
 EfficientNet-B0 & Grad-CAM / IG / random / center & \todo{X} & \todo{X}\\
 ViT-B/16 & rollout / IG / random / center & \todo{X} & \todo{X}\\\bottomrule
 \end{tabular}
-\caption{Faithfulness (placeholder until scripts/aggregate.py runs).}\label{tab:faithfulness}
+
 \end{table}}
 \TODO{Report each explainer against both controls with paired CIs. Note that the controls are scored with
 the same target class and images. Do not claim one architecture is ``more faithful''; claims are about

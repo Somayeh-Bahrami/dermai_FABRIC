@@ -1,4 +1,4 @@
-\section{Limitations and ethics}
+\section{Limitations and ethical considerations}
 \label{sec:limitations}
 \textbf{Scope.} We study one dataset and two conventional ImageNet-pretrained backbones that differ in
 capacity and pretraining data (Table~\ref{tab:models}); differences between them are not attributed to
@@ -7,5 +7,8 @@ setting. The pointing game and IoU depend on the tolerance and threshold; we rep
 one threshold. Three seeds give a coarse estimate of training variation.
 \textbf{Data.} HAM10000 is a public, de-identified dataset collected at sites in Austria and
 Australia~\cite{tschandl2018ham10000}. It has no skin-type annotations, so we cannot assess performance
-or explanation quality across skin tones. \textbf{Use.} This is a research evaluation of explanation
-benchmarks; nothing here supports clinical use of these models or their explanations.
+or explanation quality across skin tones. \textbf{Risk of misleading explanations.} A heatmap that lands on a centered lesion can look convincing to a
+clinician even when a model-free prior would land in the same place; relying on such a heatmap as evidence of
+model reasoning could create unwarranted trust. We state this as a risk motivated by our localization results,
+not as a measured effect on clinicians; we ran no user study. \textbf{Use.} This is a research evaluation of
+explanation benchmarks; nothing here supports clinical use of these models or their explanations.

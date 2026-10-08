@@ -1,4 +1,6 @@
-# Running the FABRIC experiments on molab (marimo, GPU)
+# Running the paper experiments on molab (marimo, GPU)
+
+Target venue: REED-AI @ ACM TRUST 2027 (paper due Oct 31, 2026). The experiments are unchanged by the venue switch.
 
 Check molab's current GPU options, session time limits and storage rules in its UI before starting.
 Assume the session disk can be wiped: download or upload every result folder as soon as a run finishes.
