@@ -15,24 +15,10 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src" / "dermai"))
-from localization import LocalizationEvaluator  # noqa: E402
-
-SIZE = 224
-
-
-def center_prior_heatmap(size: int = SIZE) -> np.ndarray:
-    rows, cols = np.mgrid[0:size, 0:size]
-    center = (size - 1) / 2
-    distance_squared = (rows - center) ** 2 + (cols - center) ** 2
-    return 1.0 - distance_squared / distance_squared.max()
-
-
-def load_mask(mask_dir: Path, image_id: str) -> np.ndarray:
-    mask = Image.open(mask_dir / f"{image_id}_segmentation.png").convert("L")
-    return np.array(mask.resize((SIZE, SIZE), Image.NEAREST)) > 127
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+from dermai.baselines import center_prior_heatmap  # noqa: E402
+from dermai.localization import evaluate_protocol  # noqa: E402
 
 
 def main() -> None:
@@ -44,16 +30,7 @@ def main() -> None:
 
     image_ids = [row["image_id"] for row in csv.DictReader(args.ids_from.open())]
     heatmap = center_prior_heatmap()
-    evaluators = {tolerance: LocalizationEvaluator("percentile", 80.0, pointing_tolerance=tolerance)
-                  for tolerance in (0, 15)}
-
-    rows = []
-    for image_id in image_ids:
-        mask = load_mask(args.mask_dir, image_id)
-        result = evaluators[0].evaluate_single(heatmap, mask, image_id)
-        hit_tolerant = evaluators[15].compute_pointing_game(heatmap, mask)
-        rows.append({"image_id": image_id, "iou": result.iou, "pointing_hit_tol0": result.pointing_game_hit,
-                     "pointing_hit_tol15": hit_tolerant, "lesion_area_fraction": float(mask.mean())})
+    rows = evaluate_protocol(((image_id, heatmap) for image_id in image_ids), args.mask_dir)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", newline="") as handle:

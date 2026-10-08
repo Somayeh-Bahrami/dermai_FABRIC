@@ -42,7 +42,7 @@ def main() -> None:
         args.checkpoint, attn_implementation="eager"
     ).to(device)
 
-    data = DataModule(config.data_dir, processor, config.batch_size, config.num_workers, config.seed)
+    data = DataModule(config.data_dir, processor, config.batch_size, config.num_workers, config.split_seed)
     data.setup()
     loader = data.loader(args.split)
 

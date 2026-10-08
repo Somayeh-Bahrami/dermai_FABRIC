@@ -71,16 +71,16 @@ T4. Rollout needs `attn_implementation="eager"` (transformers 5.x).
 
 ## Work plan (in order)
 Day 1 (CPU here + authorship)
-- [ ] Authorship emails sent; written approvals tracked in `ADMIN.md`.
-- [ ] Work on short feature branches in the user's repo; fix T1; add `scripts/center_prior_baseline.py` (localization) and a center-prior
+- [ ] Authorship emails sent (draft in ADMIN.md, not yet sent); written approvals tracked in `ADMIN.md`.
+- [x] Work on short feature branches in the user's repo; fix T1; add `scripts/center_prior_baseline.py` (localization) and a center-prior
       ordering option for deletion/insertion.
-- [ ] Add `src/dermai/integrated_gradients.py` (captum IntegratedGradients, 32 steps, baseline = mean-fill
+- [x] Add `src/dermai/integrated_gradients.py` (captum IntegratedGradients, 32 steps, baseline = mean-fill
       in normalized space i.e. zeros, target = predicted class, attribution = abs sum over channels,
       output 224x224 npy with the same filename scheme as Grad-CAM) and `explain_ig.py` CLI.
-- [ ] One driver `scripts/run_seed.py --model {efficientnet,vit} --seed S` that: trains, evaluates test,
+- [x] One driver `scripts/run_seed.py --model {efficientnet,vit} --seed S` that: trains, evaluates test,
       writes Grad-CAM or rollout heatmaps, IG heatmaps, faithfulness (incl. random and center-prior controls),
       localization (tolerance 0 and 15), and a JSON summary to `results/final/<model>_s<S>/`.
-- [ ] CPU smoke test with `--limit 8` and 1 tiny epoch.
+- [x] CPU smoke test with `--limit 8` and 1 tiny epoch.
 Days 2 to 3 (molab GPU, see MOLAB_GUIDE.md)
 - [ ] 6 runs: {efficientnet, vit} x seeds {42, 43, 44}. Upload each `results/final/<run>/` folder back.
 - [ ] `scripts/aggregate.py`: mean +/- SD over seeds, paired bootstrap CIs over images (10,000 draws),

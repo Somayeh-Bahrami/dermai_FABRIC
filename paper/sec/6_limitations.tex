@@ -1,0 +1,11 @@
+\section{Limitations and ethics}
+\label{sec:limitations}
+\textbf{Scope.} We study one dataset and two conventional ImageNet-pretrained backbones that differ in
+capacity and pretraining data (Table~\ref{tab:models}); differences between them are not attributed to
+inductive bias. Faithfulness depends on the perturbation substrate and step size; we use one fixed
+setting. The pointing game and IoU depend on the tolerance and threshold; we report two tolerances and
+one threshold. Three seeds give a coarse estimate of training variation.
+\textbf{Data.} HAM10000 is a public, de-identified dataset collected at sites in Austria and
+Australia~\cite{tschandl2018ham10000}. It has no skin-type annotations, so we cannot assess performance
+or explanation quality across skin tones. \textbf{Use.} This is a research evaluation of explanation
+benchmarks; nothing here supports clinical use of these models or their explanations.

@@ -56,6 +56,24 @@ class TrainAugmentation:
         return image
 
 
+def _group_split(frame: pd.DataFrame, n_splits: int, split_seed: int):
+    splitter = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=split_seed)
+    keep_idx, hold_idx = next(splitter.split(frame, frame.dx, groups=frame.lesion_id))
+    return frame.iloc[keep_idx].reset_index(drop=True), frame.iloc[hold_idx].reset_index(drop=True)
+
+
+def split_metadata(metadata: pd.DataFrame, split_seed: int) -> dict[str, pd.DataFrame]:
+    """Lesion-grouped, stratified 80/10/10 split. Depends only on the metadata and
+    split_seed, never on the training seed, so every training seed sees the same test set."""
+    train_val, test = _group_split(metadata, 10, split_seed)
+    train, val = _group_split(train_val, 9, split_seed)
+    return {"train": train, "val": val, "test": test}
+
+
+def load_metadata(data_dir: Path) -> pd.DataFrame:
+    return pd.read_csv(Path(data_dir) / "HAM10000_metadata", sep=None, engine="python")
+
+
 class HAM10000Dataset(Dataset):
     def __init__(
         self,
@@ -89,33 +107,26 @@ class DataModule:
         processor,
         batch_size: int,
         num_workers: int,
-        seed: int,
+        split_seed: int,
         augment: bool = False,
     ) -> None:
         self.data_dir = data_dir
         self.processor = processor
         self.batch_size = batch_size
         self.num_workers = num_workers
-        self.seed = seed
+        self.split_seed = split_seed
         self.splits: dict[str, pd.DataFrame] = {}
         self.train_transform = TrainAugmentation() if augment else None
 
     def setup(self) -> None:
-        metadata = pd.read_csv(self.data_dir / "HAM10000_metadata", sep=None, engine="python")
+        metadata = load_metadata(self.data_dir)
         image_paths = self._index_images()
         metadata = metadata[metadata.image_id.isin(image_paths)].reset_index(drop=True)
         self.image_paths = image_paths
-        train_val, test = self._group_split(metadata, test_fraction_splits=10)
-        train, val = self._group_split(train_val, test_fraction_splits=9)
-        self.splits = {"train": train, "val": val, "test": test}
+        self.splits = split_metadata(metadata, self.split_seed)
 
     def _index_images(self) -> dict[str, Path]:
         return {path.stem: path for path in self.data_dir.rglob("*.jpg")}
-
-    def _group_split(self, frame: pd.DataFrame, test_fraction_splits: int):
-        splitter = StratifiedGroupKFold(n_splits=test_fraction_splits, shuffle=True, random_state=self.seed)
-        keep_idx, hold_idx = next(splitter.split(frame, frame.dx, groups=frame.lesion_id))
-        return frame.iloc[keep_idx].reset_index(drop=True), frame.iloc[hold_idx].reset_index(drop=True)
 
     def class_weights(self) -> torch.Tensor:
         counts = self.splits["train"].dx.value_counts()
@@ -132,6 +143,9 @@ class DataModule:
             shuffle=(split == "train"),
             num_workers=self.num_workers,
         )
+
+    def test_image_ids(self) -> list[str]:
+        return sorted(self.splits["test"].image_id)
 
     def split_sizes(self) -> dict[str, int]:
         return {name: len(frame) for name, frame in self.splits.items()}

@@ -214,3 +214,35 @@ def summarize(results: list[LocalizationResult], model_name: str) -> dict:
 def results_to_dataframe(results: list[LocalizationResult]):
     import pandas as pd
     return pd.DataFrame([asdict(r) for r in results])
+
+
+# ----------------------------------------------------------------------
+# Paper protocol: IoU (top 20% of pixels) plus pointing game at two
+# tolerances, exact pixel (primary) and 15 px (secondary, Zhang et al.).
+# ----------------------------------------------------------------------
+POINTING_TOLERANCES = (0, 15)
+
+
+def load_mask(mask_dir: Path, image_id: str, size: tuple[int, int] = (224, 224),
+              mask_suffix: str = "_segmentation.png") -> np.ndarray:
+    """Ground-truth lesion mask resized (nearest neighbor) to the heatmap's (H, W)."""
+    mask = Image.open(Path(mask_dir) / f"{image_id}{mask_suffix}").convert("L")
+    return np.array(mask.resize((size[1], size[0]), Image.NEAREST)) > 127
+
+
+def evaluate_protocol(heatmaps, mask_dir: Path, threshold_percentile: float = 80.0) -> list[dict]:
+    """heatmaps: iterable of (image_id, heatmap array). Returns one row per image with
+    IoU, pointing-game hits at every tolerance in POINTING_TOLERANCES, and lesion area."""
+    evaluators = {tol: LocalizationEvaluator("percentile", threshold_percentile, pointing_tolerance=tol)
+                  for tol in POINTING_TOLERANCES}
+    rows = []
+    for image_id, heatmap in heatmaps:
+        mask = load_mask(mask_dir, image_id, size=heatmap.shape)
+        result = evaluators[0].evaluate_single(heatmap, mask, image_id)
+        row = {"image_id": image_id, "iou": result.iou}
+        for tol, evaluator in evaluators.items():
+            row[f"pointing_hit_tol{tol}"] = evaluator.compute_pointing_game(heatmap, mask)
+        row["lesion_area_fraction"] = float(mask.mean())
+        row["heatmap_positive_fraction"] = result.heatmap_positive_fraction
+        rows.append(row)
+    return rows

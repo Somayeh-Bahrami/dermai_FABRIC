@@ -6,7 +6,8 @@ from sklearn.metrics import balanced_accuracy_score, f1_score
 
 
 class ClassificationMetrics:
-    def __init__(self) -> None:
+    def __init__(self, num_classes: int = 7) -> None:
+        self.num_classes = num_classes
         self.predictions: list[int] = []
         self.targets: list[int] = []
 
@@ -20,4 +21,6 @@ class ClassificationMetrics:
         return {
             "macro_f1": f1_score(y_true, y_pred, average="macro", zero_division=0),
             "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
+            "per_class_f1": f1_score(y_true, y_pred, average=None, labels=list(range(self.num_classes)),
+                                     zero_division=0).tolist(),
         }

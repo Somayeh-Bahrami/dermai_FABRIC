@@ -39,7 +39,8 @@ class Config:
     num_workers: int = 0
     weight_decay: float = 0.01
     warmup_ratio: float = 0.1
-    seed: int = 42
+    seed: int = 42  # training randomness only (init, shuffling, augmentation, dropout)
+    split_seed: int = 42  # lesion-grouped train/val/test split; fixed across training seeds (trap T1)
     device: str = "auto"
     experiment_tag: str | None = None  # e.g. "unfreeze4" -- disambiguates ablation runs on checkpoint_dir
     dropout: float | None = None            # ViT: hidden_dropout_prob | EfficientNet: dropout_rate. None = HF default.

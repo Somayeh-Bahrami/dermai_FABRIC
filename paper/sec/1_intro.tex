@@ -1,0 +1,31 @@
+\section{Introduction}
+\label{sec:intro}
+
+Dermoscopic classifiers now rival specialists on curated benchmarks~\cite{esteva2017dermatologist}, and
+explanation heatmaps are a common way to argue that such a model is trustworthy: if the heatmap falls on
+the lesion and the highlighted pixels drive the prediction, the model is said to be looking at the right
+thing. Two benchmark families operationalize this argument. Localization scores a heatmap against an
+expert lesion mask, by intersection over union (IoU) or by the pointing game~\cite{zhang2016topdown}.
+Faithfulness removes or inserts pixels in heatmap order and tracks the predicted-class
+probability~\cite{petsiuk2018rise,samek2017evaluating}. Both are routinely used to compare architectures,
+often with each architecture paired with its customary explainer: Grad-CAM~\cite{selvaraju2017gradcam}
+for CNNs and attention rollout~\cite{abnar2020attention} for Vision Transformers~\cite{kozachok2026melanoscope}.
+
+This paper asks whether these benchmarks, as commonly applied to dermoscopy, measure the model. Two
+properties of the setting make the answer non-obvious. First, lesions in HAM10000~\cite{tschandl2018ham10000}
+are usually photographed near the image center, so a heatmap that ignores the image may already score
+well on localization. Second, attention rollout does not depend on the target class~\cite{chefer2021transformer},
+whereas deletion/insertion are computed on the predicted-class probability, which structurally favors a
+class-specific explainer such as Grad-CAM. A comparison of ``CNN with Grad-CAM'' against ``ViT with
+rollout'' therefore compares two model-explainer systems, not two architectures.
+
+\textbf{Contributions.} (1) A single protocol that scores classification, faithfulness and localization
+on the same checkpoints and the same \todo{1,002} test images of a fixed lesion-grouped split, with three
+training seeds per model and paired image-level confidence intervals. (2) Two model-free controls, a
+random pixel order and a fixed centered heatmap, reported as rows in the main tables. \todo{(3) Finding:
+the center prior [matches/exceeds] Grad-CAM on IoU and pointing game; numbers from
+results/final/tables/localization.tex.} (4) One shared, class-specific explainer, Integrated
+Gradients~\cite{sundararajan2017axiomatic}, applied to both architectures, which \todo{[does/does not]}
+preserve the architecture ranking obtained with the customary explainers.
+\TODO{Two sentences on FABRIC fit: trustworthy evaluation of biomedical imaging models; why evaluation
+artifacts matter before clinical studies. Keep claims at research level, no clinical-readiness claims.}

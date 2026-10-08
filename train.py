@@ -28,7 +28,7 @@ def main() -> None:
 
     processor = ModelFactory.processor(config.model_id)
     data = DataModule(
-        config.data_dir, processor, config.batch_size, config.num_workers, config.seed,
+        config.data_dir, processor, config.batch_size, config.num_workers, config.split_seed,
         augment=config.augment,
     )
     setup_timer = Timer()
