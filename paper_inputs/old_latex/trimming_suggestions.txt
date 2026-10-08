@@ -1,0 +1,124 @@
+DERMAI REPORT - 6-PAGE TRIMMING SUGGESTIONS
+=============================================
+Compare: egpaper_for_review.tex (original, 8 body pages)
+     vs: egpaper_for_review_v2.tex (trimmed, 6 body pages)
+
+Body page count = Intro through Broader Impact, i.e. everything EXCLUDING
+Team Contributions, References, and Appendix. The instructor has confirmed
+the Appendix is exempt from the 6-page limit, same as Team Contributions
+and References (only those two are stated as exempt in the official
+CS7643 project guidelines; Appendix exemption was separately confirmed
+by the teacher).
+
+Verified by compiling both files with pdflatex:
+  - egpaper_for_review.tex    -> 8 pages of body content
+  - egpaper_for_review_v2.tex -> 6 pages of body content (confirmed)
+
+Nothing was deleted outright except duplicate/placeholder text (see below).
+All data, tables, and figures from the original are still in v2 -- either
+in the main body or moved to the Appendix with a pointer from the main text.
+
+-------------------------------------------------------------------------
+WHAT CHANGED
+-------------------------------------------------------------------------
+
+1. TWO TABLES CONDENSED IN PLACE, FULL VERSIONS MOVED TO APPENDIX
+   - Table 1 (Strategy 1 vs. Strategy 2 fine-tuning depth sweep): the
+     original showed all 4 depths x 2 strategies x 2 architectures
+     (~15 numbers in a two-part full-width table). v2's main-text version
+     shows only the best result per strategy per architecture (4 numbers,
+     single-column table). The full sweep now lives in Appendix A.1,
+     referenced from the main text.
+   - Table 3 (weighted vs. unweighted loss): the original reported 8
+     columns (train/val/test x avg/best) x 4 rows. v2's main-text version
+     keeps only Test-mF1 and Test-acc (the numbers actually used to justify
+     the final decision), 4 rows. Full breakdown moved to Appendix A.3.
+   - The hyperparameter search grid (7 bulleted lists of swept values) was
+     condensed to one sentence in the main text; the full grid moved to
+     Appendix A.2.
+   This is the single biggest space saving and required the confirmed
+   Appendix exemption -- without it, this move doesn't help.
+
+2. DELETED ALL \todo{} PLACEHOLDER BLOCKS (5 total)
+   These were internal team notes, not reader-facing content (e.g. "per
+   Sebastian, 7/16", "regenerate these curves..."). We checked: every
+   substantive caveat inside them (single-seed vs. planned 3-seed,
+   the unresolved insertion-AUC anomaly, the checkpoint mismatch between
+   faithfulness and localization) is already stated in proper prose in the
+   Future Work section, so nothing was lost -- this was pure duplication.
+   Removing them also directly helps the "is the manuscript self-contained"
+   clarity criterion in the rubric (Additional, 5 pts).
+
+3. BROADER IMPACT: replaced a \todo placeholder (zero real content) with
+   2 real sentences using the actual substance that was inside the todo
+   note. This isn't a rubric-required section, so it was also folded into
+   the end of Future Work as a labeled paragraph ("Broader impact:") rather
+   than its own subsection, to save the heading's vertical space.
+
+4. CUT REDUNDANT RESTATEMENT OF THE SAME NUMBERS
+   The pair (test macro-F1 0.773 vs. 0.696), (deletion AUC 0.174 vs 0.646),
+   and the IoU/PG numbers originally appeared 3-4 times each across
+   Abstract, Results-summary, Discussion, and Conclusion. v2 keeps them in
+   Abstract + Discussion/Conclusion (where the interpretation happens) and
+   refers back to the section elsewhere instead of re-quoting digits.
+
+5. CONDENSED PROSE THROUGHOUT (no content dropped, just tightened)
+   - Section 3.1.1 (Fine-Tuning Strategy Selection): merged the
+     Strategy-1/Strategy-2 description and shortened the results paragraph
+     by about half.
+   - Section 3.1.2 (Overfitting Mitigation): tightened the per-architecture
+     findings paragraph and the "architecture-dependent asymmetry"
+     paragraph.
+   - Approach (LP-FT mechanism paragraph): kept the causal explanation
+     (why training the head first matters) but cut the step-by-step
+     narrative restating the same mechanism a second time.
+   - Discussion subsections (Problem Structure, Model Components, I/O
+     Representations, Loss Function and Regularization): each tightened
+     20-30%. NOTE: these map directly to named rubric bullets ("what parts
+     had learned parameters," "what representations," "loss function,"
+     "framework/existing code"), so they were condensed, not deleted --
+     the rubric explicitly allows "only a brief mention" for standard
+     items.
+   - Merged "Transfer Learning Impact" and "Framework and Existing Code"
+     into one subsection ("Transfer Learning and Implementation") since
+     the latter mostly repeated the Approach-section footnote.
+   - Future Work: both paragraphs (immediate items / extensions)
+     tightened by ~25-35%, content preserved.
+   - Conclusion: removed one duplicate set of parenthetical numbers
+     (already stated in Discussion immediately before it).
+
+-------------------------------------------------------------------------
+WHAT WAS DELIBERATELY NOT CUT
+-------------------------------------------------------------------------
+- Introduction and Approach's core narrative (LP-FT rationale, surgical
+  fine-tuning comparison, the code-audit findings) -- these directly answer
+  graded rubric questions ("what did you do," "why would it work," "what
+  problems did you encounter") and were only lightly tightened, not
+  shortened structurally.
+- Table 2 (regularization ablation) -- left as-is, it's already compact
+  and is the core evidence for the paper's second main finding.
+- All figures (learning curves, faithfulness curves, both architecture
+  diagrams) -- unchanged.
+- The actual scientific content of every caveat/limitation (single-seed
+  results, insertion-AUC anomaly, checkpoint mismatch) -- still present,
+  just stated once instead of 2-4 times.
+
+-------------------------------------------------------------------------
+STILL TODO (unchanged from original, not a trimming issue)
+-------------------------------------------------------------------------
+- Team Contributions table still has a \todo asking each person to confirm/
+  expand their entry -- untouched, since that section doesn't count toward
+  the page limit and isn't something a trimming pass should resolve.
+- Everything else flagged as outstanding in Future Work (regenerate
+  faithfulness curves on final checkpoints, run 3-seed evaluation, explain
+  the insertion-AUC anomaly) is unchanged -- these are real project
+  next-steps, not something trimming should paper over.
+
+-------------------------------------------------------------------------
+HOW TO VERIFY
+-------------------------------------------------------------------------
+From the project folder:
+  pdflatex egpaper_for_review_v2.tex
+  pdflatex egpaper_for_review_v2.tex    (run twice to resolve references)
+Open egpaper_for_review_v2.pdf and check pages 1-6 end at "Broader impact"
+(end of Future Work), with Team Contributions starting on page 7.

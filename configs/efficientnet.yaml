@@ -1,0 +1,26 @@
+model_id: google/efficientnet-b0  # google/efficientnet-b0 or google/vit-base-patch16-224
+data_dir: data/
+output_dir: outputs/
+batch_size: 16
+dropout: 0.2
+drop_connect_rate: 0.4
+augment: True
+num_workers: 4
+weight_decay: 0.01
+warmup_ratio: 0.1
+class_weighted_loss: True
+seed: 42
+device: auto
+
+experiment_tag: EN_best_hyparam
+
+phases:
+  - name: warmup
+    epochs: 10
+    lr: 1.0e-3
+    unfreeze_depth: 0
+
+  - name: partial_unfreeze
+    epochs: 15
+    lr: 8.0e-4
+    unfreeze_depth: "all"
